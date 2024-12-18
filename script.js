@@ -1,5 +1,5 @@
 // Definition de la taille du svg
-const margin = { top: 0, right: 30, bottom: 20, left: 10 },
+const margin = { top: 60, right: 30, bottom: 20, left: 60 },
   width = 960,
   height = 960,
   size = 5;
@@ -11,7 +11,7 @@ const svg = d3
   .attr("width", width)
   .attr("height", height)
   .append("g")
-  .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+  .attr("transform", `translate(${margin.left}, ${margin.top})`);
 
 d3.json(
   "https://lyondataviz.github.io/teaching/lyon1-m2/2024/data/got_social_graph.json"
@@ -36,4 +36,43 @@ d3.json(
     .style("stroke", "black")
     .style("stroke-width", ".2px")
     .style("fill", ({ weight }) => scale(weight));
+
+  const positionsPersonnages = d3.range(nodes.length);
+
+  // [0, 1, ..., 106]
+  const echellexy = d3
+    .scaleBand()
+    .range([0, size * nodes.length])
+    .domain(positionsPersonnages)
+    .paddingInner(0.1)
+    .align(0)
+    .round(true);
+
+  const labels = d3
+    .select("svg")
+    .append("g")
+    .attr("transform", `translate(${margin.left}, ${margin.top})`)
+    .style("font-size", "8px")
+    .style("font-family", "sans-serif");
+
+  const columns = labels
+    .append("g")
+    .selectAll()
+    .data(nodes)
+    .join("text")
+    .attr("x", 0)
+    .attr("y", (d, i) => echellexy(i) + size)
+    .style("text-anchor", "start")
+    .text(({ character }) => character)
+    .attr("transform", "rotate(-90)");
+
+  const rows = labels
+    .append("g")
+    .selectAll()
+    .data(nodes)
+    .join("text")
+    .attr("x", 0)
+    .attr("y", (d, i) => echellexy(i) + size)
+    .style("text-anchor", "end")
+    .text(({ character }) => character);
 });
