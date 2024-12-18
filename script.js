@@ -1,7 +1,8 @@
 // Definition de la taille du svg
 const margin = { top: 0, right: 30, bottom: 20, left: 10 },
   width = 960,
-  height = 960;
+  height = 960,
+  size = 5;
 
 // ajout du svg à une 'div id="matrice"' déjà créee dans la page html
 const svg = d3
@@ -23,4 +24,16 @@ d3.json(
     .scaleQuantize()
     .domain([0, maxWeight])
     .range(d3.schemeBlues[9]);
+
+  const matrixViz = svg
+    .selectAll("rect")
+    .data(adjancencymatrix)
+    .join("rect")
+    .attr("width", size)
+    .attr("height", size)
+    .attr("x", ({ x }) => x * size)
+    .attr("y", ({ y }) => y * size)
+    .style("stroke", "black")
+    .style("stroke-width", ".2px")
+    .style("fill", ({ weight }) => scale(weight));
 });
