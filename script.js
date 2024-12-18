@@ -16,7 +16,7 @@ const svg = d3
 d3.json(
   "https://lyondataviz.github.io/teaching/lyon1-m2/2024/data/got_social_graph.json"
 ).then(({ nodes, links: edges }) => {
-  const adjancencymatrix = createAdjacencyMatrix(nodes, edges);
+  const adjancencymatrix = createAdjacencyMatrix(nodes, edges, undefined, true);
 
   const maxWeight = d3.max(adjancencymatrix, (d) => d.weight);
 
@@ -24,6 +24,8 @@ d3.json(
     .scaleQuantize()
     .domain([0, maxWeight])
     .range(d3.schemeBlues[9]);
+
+  const zoneScale = d3.scaleOrdinal(d3.schemeCategory10);
 
   const matrixViz = svg
     .selectAll("rect")
@@ -33,9 +35,17 @@ d3.json(
     .attr("height", size)
     .attr("x", ({ x }) => x * size)
     .attr("y", ({ y }) => y * size)
-    .style("stroke", "black")
+    .style("stroke", "white")
     .style("stroke-width", ".2px")
-    .style("fill", ({ weight }) => scale(weight));
+    .style(
+      "opacity",
+      ({ weight }) =>
+        console.log(`${(weight / maxWeight) * 100}%`) ||
+        `${(weight / maxWeight) * 1000}%`
+    )
+    .style("fill", ({ zone_t, zone_s }) =>
+      zone_s !== zone_t ? "#eee" : zoneScale(zone_s)
+    );
 
   const positionsPersonnages = d3.range(nodes.length);
 
