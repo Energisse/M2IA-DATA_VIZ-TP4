@@ -17,5 +17,10 @@ d3.json(
 ).then(({ nodes, links: edges }) => {
   const adjancencymatrix = createAdjacencyMatrix(nodes, edges);
 
-  console.log(adjancencymatrix);
+  const maxWeight = d3.max(adjancencymatrix, (d) => d.weight);
+
+  const scale = d3
+    .scaleQuantize()
+    .domain([0, maxWeight])
+    .range(d3.schemeBlues[9]);
 });
