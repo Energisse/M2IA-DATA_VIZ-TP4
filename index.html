@@ -6,9 +6,24 @@
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <script src="./matrixManagement.js"></script>
     <script src="./script.js" defer></script>
+    <style>
+      #app {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+    </style>
     <title>TP4</title>
   </head>
   <body>
-    <div id="visu-tp4"></div>
+    <div id="app">
+      <h1>TP4</h1>
+      <select id="filter">
+        <option value="appearances">appearances</option>
+        <option value="zones">zones</option>
+        <option value="influences">influences</option>
+      </select>
+      <div id="visu-tp4"></div>
+    </div>
   </body>
 </html>

@@ -1,8 +1,7 @@
 // Definition de la taille du svg
 const margin = { top: 60, right: 30, bottom: 20, left: 60 },
   width = 960,
-  height = 960,
-  size = 5;
+  height = 960;
 
 // ajout du svg à une 'div id="matrice"' déjà créee dans la page html
 const svg = d3
@@ -20,36 +19,16 @@ d3.json(
 
   const maxWeight = d3.max(adjancencymatrix, (d) => d.weight);
 
-  const scale = d3
-    .scaleQuantize()
-    .domain([0, maxWeight])
-    .range(d3.schemeBlues[9]);
-
   const zoneScale = d3.scaleOrdinal(d3.schemeCategory10);
-
-  const matrixViz = svg
-    .selectAll("rect")
-    .data(adjancencymatrix)
-    .join("rect")
-    .attr("width", size)
-    .attr("height", size)
-    .attr("x", ({ x }) => x * size)
-    .attr("y", ({ y }) => y * size)
-    .style("stroke", "white")
-    .style("stroke-width", ".2px")
-    .style(
-      "opacity",
-      ({ weight }) =>
-        console.log(`${(weight / maxWeight) * 100}%`) ||
-        `${(weight / maxWeight) * 1000}%`
-    )
-    .style("fill", ({ zone_t, zone_s }) =>
-      zone_s !== zone_t ? "#eee" : zoneScale(zone_s)
-    );
 
   const positionsPersonnages = d3.range(nodes.length);
 
-  // [0, 1, ..., 106]
+  const size =
+    Math.min(
+      width - margin.left - margin.right,
+      height - margin.top - margin.bottom
+    ) / nodes.length;
+
   const echellexy = d3
     .scaleBand()
     .range([0, size * nodes.length])
@@ -57,6 +36,21 @@ d3.json(
     .paddingInner(0.1)
     .align(0)
     .round(true);
+
+  const matrixViz = svg
+    .selectAll("rect")
+    .data(adjancencymatrix)
+    .join("rect")
+    .attr("width", size)
+    .attr("height", size)
+    .attr("x", ({ x }) => echellexy(x))
+    .attr("y", ({ y }) => echellexy(y))
+    .style("stroke", "white")
+    .style("stroke-width", ".2px")
+    .style("opacity", ({ weight }) => `${(weight / maxWeight) * 1000}%`)
+    .style("fill", ({ zone_t, zone_s }) =>
+      zone_s !== zone_t ? "#eee" : zoneScale(zone_s)
+    );
 
   const labels = d3
     .select("svg")
@@ -85,4 +79,44 @@ d3.json(
     .attr("y", (d, i) => echellexy(i) + size)
     .style("text-anchor", "end")
     .text(({ character }) => character);
+
+  d3.select("#filter").on("change", (e) => {
+    let order;
+    switch (e.target.value) {
+      case "appearances":
+        order = appearances;
+        break;
+      case "zones":
+        order = zones;
+        break;
+      case "influences":
+        order = influences;
+        break;
+    }
+
+    update(order);
+  });
+
+  function update(newPositions) {
+    echellexy.domain(newPositions);
+
+    rows
+      .transition()
+      .delay((d, i) => i * 10)
+      .duration(1000)
+      .attr("y", (d, i) => echellexy(i) + size);
+
+    columns
+      .transition()
+      .delay((d, i) => i * 10)
+      .duration(1000)
+      .attr("y", (d, i) => echellexy(i) + size);
+
+    matrixViz
+      .transition()
+      .delay(({ x, y }, i) => (x + y) * 10)
+      .duration(1000)
+      .attr("x", ({ x }) => echellexy(x))
+      .attr("y", ({ y }) => echellexy(y));
+  }
 });
