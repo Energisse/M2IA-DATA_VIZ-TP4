@@ -11,3 +11,11 @@ const svg = d3
   .attr("height", height)
   .append("g")
   .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+d3.json(
+  "https://lyondataviz.github.io/teaching/lyon1-m2/2024/data/got_social_graph.json"
+).then(({ nodes, links: edges }) => {
+  const adjancencymatrix = createAdjacencyMatrix(nodes, edges);
+
+  console.log(adjancencymatrix);
+});
